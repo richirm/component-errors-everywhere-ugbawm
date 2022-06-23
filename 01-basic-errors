@@ -1,73 +1,104 @@
-import {Component, EventEmitter, Input, Output, HostListener, ElementRef} from 'angular/core';
-import {MyService} from './my-service.ts';
+import {
+    Component, 
+    EventEmitter, 
+    Input, 
+    Output, 
+    HostListener, 
+    ElementRef,
+    OnInit,
+    Renderer2
+} from 'angular/core';
+
+import { MyService } from './services/my-service.ts';
+import { DataInterface } from './interfaces/Data.interface';
 
 @Component({
-    selector: 'my-component',
-    template: './my-component.html'
+    selector: 'invgate-my-component',
+    templateUrl: './my-component.html',
+    styleUrls; ['./my-component.scss']
 })
-export class MyComponent {
+export class MyComponent implements OnInit {
 
-    @Input() label: number;
-    @Output() onDelete: EventEmitter;
+    @Input() label: string;
+    @Output() onDelete: EventEmitter<string> = new EventEmitter();
 
     id: string;
 
-    someData;
-    parsedData;
+    someData: DataInterface[];
+    parsedData: DataInterface[];
 
-    constructor(myService: MyService) {
-        if (this.label === '') {
+    @HostListener('mouseenter') 
+    onMouseOver() {
+        this.changeStyle(this.el, 'border', '5px solid green');
+    }
+
+    constructor(
+        private myService: MyService,
+        private renderer: Renderer2,
+        private el: ElementRef) {}
+
+    ngOnInit() {
+        this.resetValues();
+        this.subscribeToData();
+    }
+    
+    /**
+     * Reset all fields to default value.
+     */
+    private resetValues() {
+        if (!this.label) {
             this.label = 'Empty';
         }
-
-        this.subscribeToData();
-        this.processData(this.someData);
     }
 
+    /**
+     * Subscription to receive data from another place of the application.
+     */
     private subscribeToData() {
-        this.myService.onSomeEvent.subscribe(data => {
+        this.myService.onSomeEvent.subscribe((data: DataInterface[]) => {
             this.someData = data;
+            this.parsedData = this.processData(this.someData);
         });
     }
 
-    @HostListener('class') 
-    onMouseOver() {
-        this.border = '5px solid green';
-    }
 
-    public processData(originalData: any[]) {
-        let newData = [];
-        originalData.forEach(oneData => {
-          const oneDataChanged = oneData;
-
-          // Le pongo 2 decimales unicamente          
-          oneDataChanged.quantity = parseFloat(oneData.quantity.toFixed(2));
-
-          newData.push(oneData);
+    /**
+     * Transform the original data to a specific format.
+     */
+    private processData(originalData: DataInterface[]) {
+        return originalData.map(oneData => {
+          const clonedData = {...oneData};
+          // Le pongo 2 decimales unicamente 
+          clonedItem.quantity = parseFloat(clonedData.quantity.toFixed(2));
+          return clonedData;
         });
-
-        return newData;
-
     }
 
     // Suponemos que este metodo se ejecuta cuando en el html hacen click en un boton
-    private clickDeleteButton(id) {
-        this.onDelete = id;
+    /**
+     * When the button is clicked, it emits and notify the selected ID.
+     */
+    public clickDeleteButton(id: string) {
+        this.onDelete.emit(id);
+        this.updateIdWhenIsPossible(id);
     }
-
-    updateIdWhenIsPossible(id: string) {
+    
+    /**
+     * Update the id only when the selected id is a different value than the previous one.
+     */
+    private updateIdWhenIsPossible(id: string) {
         if (this.id !== id) {
             this.id = id;
             this.notififyIdChanges(id)
         }
     }
 
-    notififyIdChanges(id) {
-        console.log('Your ID has changed to: ' + id + '!');
+    private notififyIdChanges(id: string) {
+        console.log(`Your ID has changed to: ${id}!`);
     }
 
-    changeColour(element: ElementRef, color: string) {
-        this.renderer.setStyle(element, 'color', color);
+    private changeStyle(element: ElementRef, property: string, value: string) {
+        this.renderer.setStyle(element.nativeElement, property, value);
     }
 
 }
