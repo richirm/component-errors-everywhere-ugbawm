@@ -61,7 +61,6 @@ export class MyComponent implements OnInit {
         });
     }
 
-
     /**
      * Transform the original data to a specific format.
      */
@@ -76,7 +75,7 @@ export class MyComponent implements OnInit {
 
     // Suponemos que este metodo se ejecuta cuando en el html hacen click en un boton
     /**
-     * When the button is clicked, it emits and notify the selected ID.
+     * When the button is clicked, it emits and updates the selected ID.
      */
     public clickDeleteButton(id: string) {
         this.onDelete.emit(id);
