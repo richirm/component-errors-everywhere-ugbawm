@@ -1,0 +1,73 @@
+import {Component, EventEmitter, Input, Output, HostListener, ElementRef} from 'angular/core';
+import {MyService} from './my-service.ts';
+
+@Component({
+    selector: 'my-component',
+    template: './my-component.html'
+})
+export class MyComponent {
+
+    @Input() label: number;
+    @Output() onDelete: EventEmitter;
+
+    id: string;
+
+    someData;
+    parsedData;
+
+    constructor(myService: MyService) {
+        if (this.label === '') {
+            this.label = 'Empty';
+        }
+
+        this.subscribeToData();
+        this.processData(this.someData);
+    }
+
+    private subscribeToData() {
+        this.myService.onSomeEvent.subscribe(data => {
+            this.someData = data;
+        });
+    }
+
+    @HostListener('class') 
+    onMouseOver() {
+        this.border = '5px solid green';
+    }
+
+    public processData(originalData: any[]) {
+        let newData = [];
+        originalData.forEach(oneData => {
+          const oneDataChanged = oneData;
+
+          // Le pongo 2 decimales unicamente          
+          oneDataChanged.quantity = parseFloat(oneData.quantity.toFixed(2));
+
+          newData.push(oneData);
+        });
+
+        return newData;
+
+    }
+
+    // Suponemos que este metodo se ejecuta cuando en el html hacen click en un boton
+    private clickDeleteButton(id) {
+        this.onDelete = id;
+    }
+
+    updateIdWhenIsPossible(id: string) {
+        if (this.id !== id) {
+            this.id = id;
+            this.notififyIdChanges(id)
+        }
+    }
+
+    notififyIdChanges(id) {
+        console.log('Your ID has changed to: ' + id + '!');
+    }
+
+    changeColour(element: ElementRef, color: string) {
+        this.renderer.setStyle(element, 'color', color);
+    }
+
+}
