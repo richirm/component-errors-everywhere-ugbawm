@@ -15,7 +15,7 @@ import { DataInterface } from './interfaces/Data.interface';
 @Component({
     selector: 'invgate-my-component',
     templateUrl: './my-component.html',
-    styleUrls; ['./my-component.scss']
+    styleUrls: ['./my-component.scss']
 })
 export class MyComponent implements OnInit {
 
