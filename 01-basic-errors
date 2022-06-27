@@ -9,7 +9,7 @@ import {
     Renderer2
 } from 'angular/core';
 
-import { MyService } from './services/my-service.ts';
+import { MyService } from './services/my-service';
 import { DataInterface } from './interfaces/Data.interface';
 
 @Component({
